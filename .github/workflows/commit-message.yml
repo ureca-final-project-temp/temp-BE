@@ -1,0 +1,72 @@
+name: Validate Commit Messages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate PR title and commit messages
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pattern =
+              /^\[(Feat|Fix|Refactor|Docs|Test|Chore|Style)\] (?=.*[가-힣]).+$/;
+
+            // Squash merge 시 사용되는 PR 제목 검사
+            const prTitle = context.payload.pull_request.title;
+
+            if (!pattern.test(prTitle)) {
+              core.setFailed(
+                `PR 제목 형식이 올바르지 않습니다.\n\n` +
+                `현재 제목: ${prTitle}\n\n` +
+                `올바른 형식: [Type] 한글 설명\n` +
+                `예시: [Feat] JWT 로그인 구현`
+              );
+            }
+
+            const commits = await github.paginate(
+              github.rest.pulls.listCommits,
+              {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.payload.pull_request.number,
+                per_page: 100
+              }
+            );
+
+            const invalidCommits = commits.filter(commit => {
+              // 부모 커밋이 2개 이상이면 merge commit이므로 검사하지 않음
+              const isMergeCommit = commit.parents?.length > 1;
+
+              if (isMergeCommit) {
+                return false;
+              }
+
+              const message = commit.commit.message.split('\n')[0];
+
+              return !pattern.test(message);
+            });
+
+            if (invalidCommits.length > 0) {
+              const messages = invalidCommits
+                .map(commit =>
+                  `- \`${commit.sha.slice(0, 7)}\` ` +
+                  `${commit.commit.message.split('\n')[0]}`
+                )
+                .join('\n');
+
+              core.setFailed(
+                `커밋 메시지 형식이 올바르지 않습니다.\n\n` +
+                `${messages}\n\n` +
+                `올바른 형식: [Type] 한글 설명\n` +
+                `예시: [Feat] JWT 로그인 구현`
+              );
+            }
