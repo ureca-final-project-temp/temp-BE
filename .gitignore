@@ -1,0 +1,9 @@
+# IDE 설정 파일
+.idea/
+.vscode/
+*.iml
+
+# OS 생성 파일
+.DS_Store
+Thumbs.db
+
