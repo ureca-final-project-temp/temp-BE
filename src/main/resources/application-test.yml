@@ -1,0 +1,18 @@
+spring:
+  # JDBC details come only from the test-owned @ServiceConnection container.
+  # Do not import .env or add a fallback to the development database here.
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+
+  ai:
+    model:
+      chat: none
+      embedding: none
+    vectorstore:
+      pgvector:
+        dimensions: 1024
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        initialize-schema: true

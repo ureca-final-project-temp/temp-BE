@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: UBot-BE
+
+  profiles:
+    default: local
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
