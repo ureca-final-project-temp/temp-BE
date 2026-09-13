@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:ubot}
     username: ${POSTGRES_USER:ubot}
-    password: ${POSTGRES_PASSWORD:ubot_test_password}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:
