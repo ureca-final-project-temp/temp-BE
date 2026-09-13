@@ -88,7 +88,9 @@ git merge origin/develop
 .\gradlew.bat build
 ```
 
-테스트는 로컬 DB에 접속하므로 `docker compose up -d`로 PostgreSQL이 실행 중이어야 합니다.
+JDK 17 이상과 실행 중인 Docker가 필요합니다. Java 21은 없으면 Gradle이 자동으로 내려받습니다. 테스트는 Testcontainers로 전용 PostgreSQL 18 + pgvector 컨테이너를 생성하고 종료 시 정리합니다. 개발용 `.env`, 개발 Compose 서비스, Ollama는 필요하지 않으며 개발 DB·볼륨은 사용하지 않습니다. 첫 실행에는 테스트 이미지 다운로드가 필요할 수 있습니다.
+
+애플리케이션을 직접 실행하는 `bootRun`은 별도입니다. 이때는 [quickstart](docs/quickstart.md)의 개발 환경을 준비하세요.
 
 ### 4-3. Push 후 PR 생성
 
@@ -179,8 +181,8 @@ password: ${POSTGRES_PASSWORD}
 `develop`, `main` 대상 push와 PR에서 `Backend CI`가 실행됩니다.
 
 ```text
-Checkout → Java 21 설정 → PostgreSQL + pgvector 서비스 기동 → gradlew test → gradlew build -x test
+Checkout → Java 21 설정 → gradlew test (Testcontainers DB 생성·정리) → gradlew build -x test
 ```
 
-- CI는 `test` 프로필을 사용하며, DB 접속 정보는 `.github/workflows/ci.yml`의 `env:`로 주입됩니다.
-- CI의 DB 비밀번호는 작업이 끝나면 사라지는 임시 DB용 값입니다. 로컬 비밀번호로 재사용하지 마세요.
+- 로컬과 CI 모두 테스트 코드가 `test` 프로필과 Testcontainers의 DB 접속 정보를 적용합니다. CI에 별도 PostgreSQL 서비스를 띄우거나 개발 DB 비밀번호를 주입하지 않습니다.
+- 이 테스트는 전용 DB 연결, vector extension, 1024차원/HNSW/COSINE 스키마와 벡터 저장·검색을 검증합니다. 임베딩은 테스트 전용 구현을 사용하므로 실제 Ollama/BGE-M3 경로의 통합 검증을 대신하지 않습니다.

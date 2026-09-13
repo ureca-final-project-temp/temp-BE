@@ -3,17 +3,17 @@
 로컬 PostgreSQL에 접속해 데이터나 pgvector 상태를 확인하는 방법입니다.
 애플리케이션 실행에는 필요하지 않은 선택 단계입니다.
 
-전제: [quickstart](../quickstart.md)의 3단계까지 완료되어 `ubot-postgres` 컨테이너가 실행 중이어야 합니다.
+전제: [quickstart](../quickstart.md)의 3단계까지 완료되어 Compose의 `postgres` 서비스가 실행 중이어야 합니다. 아래 명령은 프로젝트 루트에서 실행합니다. 테스트용 Testcontainers DB와는 별개입니다.
 
 ## psql로 접속하기
 
 별도 설치 없이 컨테이너 안의 psql을 사용합니다.
 
 ```powershell
-docker exec -it ubot-postgres psql -U ubot -d ubot
+docker compose exec postgres psql -U ubot -d ubot
 ```
 
-컨테이너 내부 접속이라 비밀번호를 묻지 않습니다. `.env`에서 `POSTGRES_USER`나 `POSTGRES_DB`를 바꿨다면 `-U`, `-d` 값도 맞춰 바꾸세요.
+이 개발 이미지의 기본 로컬 소켓 인증에서는 비밀번호를 묻지 않습니다. 인증 설정을 별도로 바꿨다면 해당 설정을 따릅니다. `.env`에서 `POSTGRES_USER`나 `POSTGRES_DB`를 바꿨다면 `-U`, `-d` 값도 맞춰 바꾸세요.
 
 종료: `\q`
 
@@ -24,7 +24,7 @@ docker exec -it ubot-postgres psql -U ubot -d ubot
 | 항목 | 값 |
 |---|---|
 | Host | `localhost` |
-| Port | `.env`의 `POSTGRES_PORT` (기본 `5432`) |
+| Port | `.env`의 `POSTGRES_PORT` (`.env.example`은 `15432`) |
 | Database | `.env`의 `POSTGRES_DB` |
 | Username | `.env`의 `POSTGRES_USER` |
 | Password | `.env`의 `POSTGRES_PASSWORD` |
@@ -46,4 +46,5 @@ WHERE extname = 'vector';
 ## 주의사항
 
 - 테이블 구조를 DBeaver나 psql로 직접 변경하지 않습니다. 스키마 변경은 추후 migration 도구로 관리할 예정입니다.
-- 애플리케이션은 `ddl-auto: none`이라 테이블을 자동으로 만들거나 바꾸지 않습니다.
+- JPA는 `ddl-auto: none`이지만 개발 프로필의 Spring AI pgvector는 `initialize-schema: true`로 벡터 테이블·인덱스 초기화를 수행합니다. 두 설정은 별개입니다.
+- Testcontainers는 별도 컨테이너·DB·임의 호스트 포트를 사용합니다. 위의 개발 DB 접속 정보로 테스트 DB를 조회하거나 정리하지 않습니다.
