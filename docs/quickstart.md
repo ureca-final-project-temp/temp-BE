@@ -22,7 +22,11 @@
 ```powershell
 git clone https://github.com/ureca-final-project-temp/UBot-BE.git
 cd UBot-BE
+git switch develop
+git pull origin develop
 ```
+
+개발은 `develop` 브랜치를 기준으로 합니다. 브랜치 규칙은 [CONTRIBUTING.md](../CONTRIBUTING.md)를 참고하세요.
 
 이후 모든 명령은 **프로젝트 루트**(`UBot-BE/`)에서 실행합니다.
 
