@@ -5,13 +5,11 @@ on:
     branches:
       - develop
       - main
-      - chore/2-infra-setup
 
   push:
     branches:
       - develop
       - main  
-      - chore/2-infra-setup
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
